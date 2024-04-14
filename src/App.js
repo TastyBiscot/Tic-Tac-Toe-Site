@@ -1,5 +1,29 @@
 import { useState } from 'react';
 
+const mysql = require('mysql2/promise');
+
+const connectionDetails = {
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+};
+
+let connection;
+
+async function initDatabase() {
+  connection = await mysql.createConnection(connectionDetails);
+
+  await connection.query(`
+    CREATE TABLE IF NOT EXISTS MatchOutcome (
+      id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+      winner VARCHAR(255) NOT NULL
+    )
+  `);
+}
+
+initDatabase()
+
 function Square({ value, onSquareClick }) {
   return (
     <button className="square" onClick={onSquareClick}>
@@ -26,24 +50,33 @@ function Board({ xIsNext, squares, onPlay }) {
   let status;
   if (winner) {
     status = 'Winner: ' + winner;
+
+    connection.execute(
+      `
+      INSERT INTO MatchOutcome (winner)
+      VALUES (?)
+    `,
+      [winner]
+    );
+
   } else {
     status = 'Next player: ' + (xIsNext ? 'X' : 'O');
   }
 
   return (
     <>
-      <div className="status">{status}</div>
-      <div className="board-row">
+      <div>{status}</div>
+      <div>
         <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
         <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
         <Square value={squares[2]} onSquareClick={() => handleClick(2)} />
       </div>
-      <div className="board-row">
+      <div>
         <Square value={squares[3]} onSquareClick={() => handleClick(3)} />
         <Square value={squares[4]} onSquareClick={() => handleClick(4)} />
         <Square value={squares[5]} onSquareClick={() => handleClick(5)} />
       </div>
-      <div className="board-row">
+      <div>
         <Square value={squares[6]} onSquareClick={() => handleClick(6)} />
         <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
         <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
