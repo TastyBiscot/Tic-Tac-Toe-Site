@@ -116,11 +116,11 @@ export default function Game() {
   });
 
   return (
-    <div className="game">
-      <div className="game-board">
+    <div>
+      <div>
         <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
       </div>
-      <div className="game-info">
+      <div>
         <ol>{moves}</ol>
       </div>
     </div>
@@ -146,3 +146,4 @@ function calculateWinner(squares) {
   }
   return null;
 }
+//Tutorial i use to make the site: https://react.dev/learn/tutorial-tic-tac-toe#setup-for-the-tutorial
